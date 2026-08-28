@@ -14,35 +14,52 @@
         <p>Aprende a identificar el siguiente paso</p>
     </header>
 
-    <main id="app-container">
-        <!-- Input section -->
-        <section id="input-section" class="card">
-            <h2>1. Ingresa tu problema</h2>
-            <p>Escribe la ecuación o integral (en formato LaTeX):</p>
-            <textarea id="math-input" placeholder="\int x^2 dx"></textarea>
-            
-            <div class="preview-container">
-                <p>Vista previa:</p>
-                <div id="latex-preview" class="latex-render"></div>
-            </div>
-            
-            <button id="start-quiz-btn" class="primary-btn">Comenzar Quiz</button>
-        </section>
+    <div class="layout-container">
+        <main id="app-container">
+            <!-- Input section -->
+            <section id="input-section" class="card">
+                <h2>1. Ingresa tu problema</h2>
+                <p>Escribe la ecuación o integral (en formato LaTeX):</p>
+                <textarea id="math-input" placeholder="\int x^2 dx"></textarea>
+                
+                <div class="preview-container">
+                    <p>Vista previa:</p>
+                    <div id="latex-preview" class="latex-render"></div>
+                </div>
+                
+                <button id="start-quiz-btn" class="primary-btn">Comenzar Quiz</button>
+            </section>
 
-        <!-- Quiz section (Hidden initially) -->
-        <section id="quiz-section" class="card" style="display: none;">
-            <h2>2. ¿Cuál es la fórmula o método a aplicar?</h2>
-            <div class="problem-display">
-                <div id="quiz-expression" class="latex-render"></div>
-            </div>
-            
-            <div id="options-container" class="options-grid">
-                <!-- Buttons will be generated via JS -->
-            </div>
-            
-            <button id="reset-btn" class="secondary-btn" style="margin-top: 20px;">Probar otro problema</button>
-        </section>
-    </main>
+            <!-- Quiz section (Hidden initially) -->
+            <section id="quiz-section" class="card" style="display: none;">
+                <h2>2. ¿Cuál es la fórmula o método a aplicar?</h2>
+                <div class="problem-display">
+                    <div id="quiz-expression" class="latex-render"></div>
+                </div>
+                
+                <div id="options-container" class="options-grid">
+                    <!-- Buttons will be generated via JS -->
+                </div>
+                
+                <button id="reset-btn" class="secondary-btn" style="margin-top: 20px;">Probar otro problema</button>
+            </section>
+        </main>
+
+        <aside class="latex-cheatsheet card">
+            <h3>Guía de LaTeX</h3>
+            <p style="margin-bottom: 1rem; font-size: 0.9em; color: #7f8c8d;">Usa estos comandos para escribir tus ecuaciones:</p>
+            <ul>
+                <li><code>\int</code> Integral</li>
+                <li><code>x^2</code> Exponente</li>
+                <li><code>\pm</code> Más / Menos</li>
+                <li><code>\sin(x)</code> Seno</li>
+                <li><code>\cos(x)</code> Coseno</li>
+                <li><code>\ln(x)</code> Logaritmo</li>
+                <li><code>\frac{a}{b}</code> Fracción</li>
+                <li><code>(x+y)</code> Agrupación</li>
+            </ul>
+        </aside>
+    </div>
 
     <!-- KaTeX JS -->
     <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>

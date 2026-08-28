@@ -33,10 +33,62 @@ header p {
     margin-top: 0.5rem;
 }
 
-main {
-    max-width: 800px;
+.layout-container {
+    display: flex;
+    max-width: 1000px;
     margin: 0 auto;
     padding: 0 1rem;
+    gap: 2rem;
+    align-items: flex-start;
+}
+
+main {
+    flex: 1;
+}
+
+.latex-cheatsheet {
+    width: 300px;
+    position: sticky;
+    top: 2rem;
+}
+
+.latex-cheatsheet h3 {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+}
+
+.latex-cheatsheet ul {
+    list-style: none;
+}
+
+.latex-cheatsheet li {
+    background: #f8fafc;
+    margin-bottom: 0.5rem;
+    padding: 0.6rem;
+    border-radius: 4px;
+    border-left: 3px solid var(--primary-color);
+    font-size: 0.95em;
+    display: flex;
+    justify-content: space-between;
+}
+
+.latex-cheatsheet code {
+    background: #e1e8ed;
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+    font-weight: bold;
+    color: #c0392b;
+    font-family: monospace;
+}
+
+@media (max-width: 768px) {
+    .layout-container {
+        flex-direction: column;
+    }
+    .latex-cheatsheet {
+        width: 100%;
+        position: static;
+    }
 }
 
 .card {
