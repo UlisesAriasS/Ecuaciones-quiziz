@@ -1,4 +1,88 @@
-import { analyzeExpression } from './domain/quizEngine.js';
+const rules = [
+    // --- ÁLGEBRA ---
+    {
+        id: 'diferencia_cuadrados',
+        topic: 'Diferencia de Cuadrados',
+        match: (latex) => latex.includes('^2') && latex.includes('-'),
+        getOptions: () => ({
+            correct: 'a^2 - b^2 = (a - b)(a + b)',
+            distractors: [
+                'a^2 - b^2 = (a - b)^2',
+                'a^2 - b^2 = a^2 - 2ab + b^2',
+                'a^2 - b^2 = (a + b)^2'
+            ]
+        })
+    },
+    {
+        id: 'binomio_cuadrado',
+        topic: 'Binomio al Cuadrado',
+        match: (latex) => latex.includes(')^2') && (latex.includes('+') || latex.includes('-')),
+        getOptions: () => ({
+            correct: '(a \\pm b)^2 = a^2 \\pm 2ab + b^2',
+            distractors: [
+                '(a \\pm b)^2 = a^2 \\pm b^2',
+                '(a \\pm b)^2 = a^2 \\pm ab + b^2',
+                '(a \\pm b)^2 = (a-b)(a+b)'
+            ]
+        })
+    },
+    // --- INTEGRALES ---
+    {
+        id: 'integral_potencia',
+        topic: 'Integral de una Potencia (Directa)',
+        match: (latex) => latex.includes('\\int') && latex.includes('^') && latex.includes('dx'),
+        getOptions: () => ({
+            correct: '\\int u^n du = \\frac{u^{n+1}}{n+1} + C',
+            distractors: [
+                '\\int u^n du = n u^{n-1} + C',
+                '\\int u^n du = \\ln|u| + C',
+                '\\int u^n du = \\frac{u^n}{n} + C'
+            ]
+        })
+    },
+    {
+        id: 'integral_partes',
+        topic: 'Integración por Partes',
+        match: (latex) => latex.includes('\\int') && 
+               (latex.includes('e^') || latex.includes('\\sin') || latex.includes('\\cos') || latex.includes('\\ln')) &&
+               latex.includes('dx'),
+        getOptions: () => ({
+            correct: '\\int u \\, dv = u v - \\int v \\, du',
+            distractors: [
+                '\\int u \\, dv = u + v - \\int du \\, dv',
+                '\\int u \\, dv = u v - \\frac{v^2}{2} + C',
+                '\\int u \\, dv = \\int u \\, du \\cdot \\int v \\, dv'
+            ]
+        })
+    }
+];
+
+function analyzeExpression(latex) {
+    const normalized = latex.replace(/\s+/g, '');
+    for (const rule of rules) {
+        if (rule.match(normalized)) {
+            const optionsData = rule.getOptions(normalized);
+            const allOptions = [
+                { text: optionsData.correct, isCorrect: true },
+                ...optionsData.distractors.map(d => ({ text: d, isCorrect: false }))
+            ];
+            return {
+                topic: rule.topic,
+                options: shuffleArray(allOptions)
+            };
+        }
+    }
+    return null; 
+}
+
+function shuffleArray(array) {
+    const newArr = [...array];
+    for (let i = newArr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArr[i], newArr[j]] = [newArr[j], newArr[i]];
+    }
+    return newArr;
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const mathInput = document.getElementById('math-input');
@@ -10,9 +94,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const quizSection = document.getElementById('quiz-section');
     const quizExpression = document.getElementById('quiz-expression');
     const optionsContainer = document.getElementById('options-container');
-    const quizTitle = quizSection.querySelector('h2'); // El título de la sección del quiz
+    const quizTitle = quizSection.querySelector('h2'); 
 
-    // Renderizar LaTeX en tiempo real en la vista previa
     mathInput.addEventListener('input', () => {
         const latex = mathInput.value;
         try {
@@ -25,38 +108,32 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Iniciar el Quiz
     startQuizBtn.addEventListener('click', () => {
         const latex = mathInput.value.trim();
         if (!latex) {
-            alert('Por favor, ingresa una ecuación o integral válida.');
+            alert('Por favor, ingresa una ecuación o integral válida en la caja de texto.');
             return;
         }
 
-        // Analizar la expresión con el motor matemático
         const quizData = analyzeExpression(latex);
 
         if (!quizData) {
-            alert('Aún no reconozco este tipo de ecuación o no tengo reglas para ella. Prueba con una Diferencia de Cuadrados (x^2 - y^2) o una Integral básica (\\int x^2 dx).');
+            alert('Aún no reconozco este tipo de ecuación. Prueba escribir: \\int x^2 dx');
             return;
         }
 
-        // Mostrar la expresión y el tema detectado
         quizTitle.textContent = `Tema detectado: ${quizData.topic}. ¿Cuál es la fórmula o método a aplicar?`;
         
         try {
             katex.render(latex, quizExpression, { throwOnError: false, displayMode: true });
         } catch(e) {}
 
-        // Generar botones de opciones
         renderizarOpciones(quizData.options);
 
-        // Cambiar vistas
         inputSection.style.display = 'none';
         quizSection.style.display = 'block';
     });
 
-    // Reiniciar
     resetBtn.addEventListener('click', () => {
         quizSection.style.display = 'none';
         inputSection.style.display = 'block';
@@ -65,22 +142,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     function renderizarOpciones(opciones) {
-        optionsContainer.innerHTML = ''; // Limpiar anteriores
+        optionsContainer.innerHTML = ''; 
         
         opciones.forEach(opcion => {
             const btn = document.createElement('button');
             btn.className = 'option-btn';
             
-            // Renderizar la fórmula LaTeX dentro del botón
             katex.render(opcion.text, btn, { throwOnError: false });
             
             btn.addEventListener('click', () => {
                 if (opcion.isCorrect) {
-                    btn.style.backgroundColor = '#d4edda'; // Verde éxito
+                    btn.style.backgroundColor = '#d4edda';
                     btn.style.borderColor = '#28a745';
                     alert('¡Correcto! Esa es la fórmula adecuada.');
                 } else {
-                    btn.style.backgroundColor = '#f8d7da'; // Rojo error
+                    btn.style.backgroundColor = '#f8d7da';
                     btn.style.borderColor = '#dc3545';
                     alert('Incorrecto. Intenta nuevamente.');
                 }
