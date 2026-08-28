@@ -1,5 +1,4 @@
-// Importaciones de módulos (simuladas por ahora)
-// Aquí importaremos después la lógica matemática de js/domain/
+import { analyzeExpression } from './domain/quizEngine.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const mathInput = document.getElementById('math-input');
@@ -11,12 +10,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const quizSection = document.getElementById('quiz-section');
     const quizExpression = document.getElementById('quiz-expression');
     const optionsContainer = document.getElementById('options-container');
+    const quizTitle = quizSection.querySelector('h2'); // El título de la sección del quiz
 
     // Renderizar LaTeX en tiempo real en la vista previa
     mathInput.addEventListener('input', () => {
         const latex = mathInput.value;
         try {
-            // KaTeX está disponible globalmente desde el CDN
             katex.render(latex || '\\text{Esperando ecuación...}', latexPreview, {
                 throwOnError: false,
                 displayMode: true
@@ -34,15 +33,25 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // 1. Mostrar la expresión en el área de quiz
+        // Analizar la expresión con el motor matemático
+        const quizData = analyzeExpression(latex);
+
+        if (!quizData) {
+            alert('Aún no reconozco este tipo de ecuación o no tengo reglas para ella. Prueba con una Diferencia de Cuadrados (x^2 - y^2) o una Integral básica (\\int x^2 dx).');
+            return;
+        }
+
+        // Mostrar la expresión y el tema detectado
+        quizTitle.textContent = `Tema detectado: ${quizData.topic}. ¿Cuál es la fórmula o método a aplicar?`;
+        
         try {
             katex.render(latex, quizExpression, { throwOnError: false, displayMode: true });
         } catch(e) {}
 
-        // 2. Generar opciones mockeadas (aquí conectaremos la lógica real después)
-        generarOpcionesMock();
+        // Generar botones de opciones
+        renderizarOpciones(quizData.options);
 
-        // 3. Cambiar vistas
+        // Cambiar vistas
         inputSection.style.display = 'none';
         quizSection.style.display = 'block';
     });
@@ -52,28 +61,29 @@ document.addEventListener('DOMContentLoaded', () => {
         quizSection.style.display = 'none';
         inputSection.style.display = 'block';
         mathInput.value = '';
-        latexPreview.innerHTML = '';
+        latexPreview.innerHTML = '\\text{Esperando ecuación...}';
     });
 
-    function generarOpcionesMock() {
+    function renderizarOpciones(opciones) {
         optionsContainer.innerHTML = ''; // Limpiar anteriores
         
-        const opciones = [
-            '\\int u^n du = \\frac{u^{n+1}}{n+1}',
-            '\\int e^u du = e^u',
-            '\\text{Integración por Partes: } \\int u dv = uv - \\int v du',
-            '\\text{Cambio de Variable ( } u \\text{ )}'
-        ];
-
-        opciones.forEach(opcionLatex => {
+        opciones.forEach(opcion => {
             const btn = document.createElement('button');
             btn.className = 'option-btn';
             
-            // Renderizar la fórmula en el botón
-            katex.render(opcionLatex, btn, { throwOnError: false });
+            // Renderizar la fórmula LaTeX dentro del botón
+            katex.render(opcion.text, btn, { throwOnError: false });
             
             btn.addEventListener('click', () => {
-                alert('¡Opción seleccionada! Más adelante aquí validaremos si es correcta.');
+                if (opcion.isCorrect) {
+                    btn.style.backgroundColor = '#d4edda'; // Verde éxito
+                    btn.style.borderColor = '#28a745';
+                    alert('¡Correcto! Esa es la fórmula adecuada.');
+                } else {
+                    btn.style.backgroundColor = '#f8d7da'; // Rojo error
+                    btn.style.borderColor = '#dc3545';
+                    alert('Incorrecto. Intenta nuevamente.');
+                }
             });
 
             optionsContainer.appendChild(btn);
