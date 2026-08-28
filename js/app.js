@@ -296,6 +296,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const quizExpression = document.getElementById('quiz-expression');
     const optionsContainer = document.getElementById('options-container');
     const quizTitle = quizSection.querySelector('h2'); 
+    const scoreDisplay = document.getElementById('score-display');
+
+    let currentScore = 0;
+    let answered = false;
 
     mathInput.addEventListener('input', () => {
         const latex = mathInput.value;
@@ -323,7 +327,8 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        quizTitle.textContent = `Tema detectado: ${quizData.topic}. ¿Cuál es la fórmula o método a aplicar?`;
+        quizTitle.textContent = `Tema detectado: ${quizData.topic}`;
+        answered = false;
         
         try {
             katex.render(latex, quizExpression, { throwOnError: false, displayMode: true });
@@ -352,15 +357,26 @@ document.addEventListener('DOMContentLoaded', () => {
             katex.render(opcion.text, btn, { throwOnError: false });
             
             btn.addEventListener('click', () => {
+                if (answered) return; // Evitar multiples clicks
+                answered = true;
+
                 if (opcion.isCorrect) {
                     btn.style.backgroundColor = '#d4edda';
                     btn.style.borderColor = '#28a745';
-                    alert('¡Correcto! Esa es la fórmula adecuada.');
+                    currentScore += 10;
+                    scoreDisplay.textContent = currentScore;
+                    alert('¡Correcto! Esa es la fórmula adecuada. +10 puntos');
                 } else {
                     btn.style.backgroundColor = '#f8d7da';
                     btn.style.borderColor = '#dc3545';
-                    alert('Incorrecto. Intenta nuevamente.');
+                    currentScore = Math.max(0, currentScore - 5);
+                    scoreDisplay.textContent = currentScore;
+                    alert('Incorrecto. Se restaron 5 puntos. La próxima vez lo harás mejor.');
                 }
+                
+                // Mostrar el boton para probar otro problema visualmente mas llamativo si se desea
+                resetBtn.style.backgroundColor = '#3498db';
+                resetBtn.style.color = 'white';
             });
 
             optionsContainer.appendChild(btn);

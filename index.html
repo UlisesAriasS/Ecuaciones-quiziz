@@ -32,7 +32,12 @@
 
             <!-- Quiz section (Hidden initially) -->
             <section id="quiz-section" class="card" style="display: none;">
-                <h2>2. ¿Cuál es la fórmula o método a aplicar?</h2>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h2>2. ¿Cuál es la fórmula o método a aplicar?</h2>
+                    <div style="font-size: 1.2em; font-weight: bold; color: var(--primary-color);">
+                        Puntos: <span id="score-display">0</span>
+                    </div>
+                </div>
                 <div class="problem-display">
                     <div id="quiz-expression" class="latex-render"></div>
                 </div>
