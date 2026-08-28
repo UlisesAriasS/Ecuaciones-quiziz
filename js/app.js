@@ -1,15 +1,180 @@
 const rules = [
-    // --- ÁLGEBRA ---
+    // ==========================================
+    // 1. DERIVADAS
+    // ==========================================
     {
-        id: 'trinomio_cuadrado_perfecto',
-        topic: 'Trinomio Cuadrado Perfecto',
-        match: (latex) => latex.includes('^2') && (latex.includes('+2') || latex.includes('-2')),
+        id: 'derivada_cadena',
+        topic: 'Derivadas - Regla de la Cadena',
+        match: (latex) => (latex.includes('\\frac{d}{dx}') || latex.includes('\'(')) && 
+                          (latex.includes('(') || latex.includes('^') || latex.includes('\\sin') || latex.includes('\\cos') || latex.includes('\\ln')),
         getOptions: () => ({
-            correct: 'a^2 \\pm 2ab + b^2 = (a \\pm b)^2',
+            correct: '\\frac{d}{dx}[f(g(x))] = f\'(g(x)) \\cdot g\'(x)',
             distractors: [
-                'a^2 \\pm 2ab + b^2 = a^2 \\pm b^2',
-                'a^2 \\pm 2ab + b^2 = (a-b)(a+b)',
-                'a^2 \\pm 2ab + b^2 = a^2 + b^2'
+                '\\frac{d}{dx}[f(x)g(x)] = f\'(x)g\'(x)',
+                '\\frac{d}{dx}\\left[\\frac{f(x)}{g(x)}\\right] = \\frac{f\'(x)}{g\'(x)}',
+                '\\frac{d}{dx}[f(g(x))] = f\'(x)g\'(x)'
+            ]
+        })
+    },
+    {
+        id: 'derivada_potencia',
+        topic: 'Derivadas - Regla de la Potencia',
+        match: (latex) => latex.includes('\\frac{d}{dx}') || latex.includes('\''),
+        getOptions: () => ({
+            correct: '\\frac{d}{dx}[x^n] = n x^{n-1}',
+            distractors: [
+                '\\frac{d}{dx}[x^n] = \\frac{x^{n+1}}{n+1}',
+                '\\frac{d}{dx}[x^n] = n x^n',
+                '\\frac{d}{dx}[x^n] = x^{n-1}'
+            ]
+        })
+    },
+
+    // ==========================================
+    // 2. INTEGRALES
+    // ==========================================
+    {
+        id: 'integral_fracciones_parciales',
+        topic: 'Integración por Fracciones Parciales',
+        match: (latex) => latex.includes('\\int') && latex.includes('\\frac') && (latex.includes(')(') || latex.includes(')(x')),
+        getOptions: () => ({
+            correct: '\\frac{P(x)}{(x-a)(x-b)} = \\frac{A}{x-a} + \\frac{B}{x-b}',
+            distractors: [
+                '\\int \\frac{u}{v} dx = \\ln|v| + C',
+                '\\frac{P(x)}{Q(x)} = P(x) - Q(x)',
+                '\\int \\frac{1}{u^2+a^2} du = \\frac{1}{a}\\arctan\\left(\\frac{u}{a}\\right) + C'
+            ]
+        })
+    },
+    {
+        id: 'integral_partes',
+        topic: 'Integración por Partes (ILATE)',
+        match: (latex) => latex.includes('\\int') && 
+                          (latex.includes('e^') || latex.includes('\\sin') || latex.includes('\\cos') || latex.includes('\\ln') || latex.includes('\\arctan')) &&
+                          latex.includes('x') && !latex.includes('\\frac'),
+        getOptions: () => ({
+            correct: '\\int u \\, dv = u v - \\int v \\, du',
+            distractors: [
+                '\\int u \\, dv = u + v - \\int du \\, dv',
+                '\\int u \\, dv = u v - \\frac{v^2}{2} + C',
+                '\\int u \\, dv = \\int u \\, du \\cdot \\int v \\, dv'
+            ]
+        })
+    },
+    {
+        id: 'integral_completar_diferencial',
+        topic: 'Identificar si el Diferencial está Completo (Sustitución)',
+        match: (latex) => latex.includes('\\int') && 
+                          (latex.includes('2x') || latex.includes('3x') || latex.includes('4x') || latex.includes('5x') || (latex.includes('^2') && latex.includes('x\\'))) &&
+                          latex.includes('dx'),
+        getOptions: () => ({
+            correct: '\\text{Si } u = g(x) \\implies du = g\'(x)dx. \\text{ Balancear constante: } \\frac{1}{k}',
+            distractors: [
+                '\\text{No se puede resolver por sustitución directa}',
+                '\\int f(g(x)) dx = F(g(x)) + C',
+                '\\int u \\, du = u^2 + C'
+            ]
+        })
+    },
+    {
+        id: 'integral_sustitucion_general',
+        topic: 'Cambio de Variable (Sustitución u-du)',
+        match: (latex) => latex.includes('\\int') && (latex.includes('(') || latex.includes('\\sqrt')) && latex.includes('dx'),
+        getOptions: () => ({
+            correct: '\\int f(g(x))g\'(x)dx = \\int f(u)du',
+            distractors: [
+                '\\int u \\, dv = uv - \\int v \\, du',
+                '\\int f(x)g(x)dx = \\int f(x)dx \\cdot \\int g(x)dx',
+                '\\int \\frac{du}{u} = \\arctan(u) + C'
+            ]
+        })
+    },
+    {
+        id: 'integral_potencia',
+        topic: 'Integral de una Potencia (Directa)',
+        match: (latex) => latex.includes('\\int') && latex.includes('dx'),
+        getOptions: () => ({
+            correct: '\\int x^n dx = \\frac{x^{n+1}}{n+1} + C \\quad (n \\neq -1)',
+            distractors: [
+                '\\int x^n dx = n x^{n-1} + C',
+                '\\int x^n dx = \\ln|x| + C',
+                '\\int x^n dx = \\frac{x^n}{n} + C'
+            ]
+        })
+    },
+
+    // ==========================================
+    // 3. IDENTIDADES TRIGONOMÉTRICAS Y LOGARITMOS
+    // ==========================================
+    {
+        id: 'identidad_pitagorica',
+        topic: 'Identidades Trigonométricas (Pitagórica)',
+        match: (latex) => (latex.includes('\\sin^2') || latex.includes('\\cos^2') || latex.includes('\\tan^2') || latex.includes('\\sec^2')),
+        getOptions: () => ({
+            correct: '\\sin^2(x) + \\cos^2(x) = 1',
+            distractors: [
+                '\\sin^2(x) - \\cos^2(x) = 1',
+                '\\sin^2(x) + \\cos^2(x) = 0',
+                '\\tan^2(x) + 1 = \\sin^2(x)'
+            ]
+        })
+    },
+    {
+        id: 'propiedades_logaritmicas_producto',
+        topic: 'Propiedades de los Logaritmos (Producto y Cociente)',
+        match: (latex) => (latex.includes('\\ln') || latex.includes('\\log')) && (latex.includes('\\cdot') || latex.includes('*') || latex.includes('\\frac')),
+        getOptions: () => ({
+            correct: '\\ln(a \\cdot b) = \\ln(a) + \\ln(b) \\quad \\text{y} \\quad \\ln\\left(\\frac{a}{b}\\right) = \\ln(a) - \\ln(b)',
+            distractors: [
+                '\\ln(a \\cdot b) = \\ln(a) \\cdot \\ln(b)',
+                '\\ln(a + b) = \\ln(a) + \\ln(b)',
+                '\\ln\\left(\\frac{a}{b}\\right) = \\frac{\\ln(a)}{\\ln(b)}'
+            ]
+        })
+    },
+    {
+        id: 'propiedades_logaritmicas_potencia',
+        topic: 'Propiedad de Logaritmo de una Potencia',
+        match: (latex) => (latex.includes('\\ln') || latex.includes('\\log')) && latex.includes('^'),
+        getOptions: () => ({
+            correct: '\\ln(a^k) = k \\cdot \\ln(a)',
+            distractors: [
+                '\\ln(a^k) = (\\ln(a))^k',
+                '\\ln(a^k) = k + \\ln(a)',
+                '\\ln(a^k) = e^{k \\ln(a)}'
+            ]
+        })
+    },
+
+    // ==========================================
+    // 4. ÁLGEBRA Y PRODUCTOS NOTABLES
+    // ==========================================
+    {
+        id: 'ley_exponentes',
+        topic: 'Leyes de los Exponentes',
+        match: (latex) => {
+            const expMatches = (latex.match(/\^/g) || []).length;
+            return expMatches >= 2 || (latex.includes('^') && (latex.includes('\\cdot') || latex.includes('*') || latex.includes(')(')));
+        },
+        getOptions: () => ({
+            correct: 'a^m \\cdot a^n = a^{m+n} \\quad \\text{y} \\quad (a^m)^n = a^{m \\cdot n}',
+            distractors: [
+                'a^m \\cdot a^n = a^{m \\cdot n}',
+                'a^m + a^n = a^{m+n}',
+                '(a^m)^n = a^{m+n}'
+            ]
+        })
+    },
+    {
+        id: 'binomio_conjugado',
+        topic: 'Binomios Conjugados',
+        match: (latex) => (latex.includes('(') && latex.includes(')') && latex.includes('-') && latex.includes('+')) || latex.includes('(a-b)(a+b)'),
+        getOptions: () => ({
+            correct: '(a - b)(a + b) = a^2 - b^2',
+            distractors: [
+                '(a - b)(a + b) = (a - b)^2',
+                '(a - b)(a + b) = a^2 + b^2',
+                '(a - b)(a + b) = a^2 - 2ab + b^2'
             ]
         })
     },
@@ -40,19 +205,6 @@ const rules = [
         })
     },
     {
-        id: 'diferencia_cuadrados',
-        topic: 'Diferencia de Cuadrados / Binomio Conjugado',
-        match: (latex) => latex.includes('^2') && latex.includes('-') && !latex.includes('+2') && !latex.includes('-2'),
-        getOptions: () => ({
-            correct: 'a^2 - b^2 = (a - b)(a + b)',
-            distractors: [
-                'a^2 - b^2 = (a - b)^2',
-                'a^2 - b^2 = a^2 - 2ab + b^2',
-                'a^2 - b^2 = (a + b)^2'
-            ]
-        })
-    },
-    {
         id: 'binomio_cuadrado',
         topic: 'Binomio al Cuadrado',
         match: (latex) => latex.includes(')^2') && (latex.includes('+') || latex.includes('-')),
@@ -66,6 +218,32 @@ const rules = [
         })
     },
     {
+        id: 'diferencia_cuadrados',
+        topic: 'Diferencia de Cuadrados',
+        match: (latex) => latex.includes('^2') && latex.includes('-') && !latex.includes('('),
+        getOptions: () => ({
+            correct: 'a^2 - b^2 = (a - b)(a + b)',
+            distractors: [
+                'a^2 - b^2 = (a - b)^2',
+                'a^2 - b^2 = a^2 - 2ab + b^2',
+                'a^2 - b^2 = (a + b)^2'
+            ]
+        })
+    },
+    {
+        id: 'trinomio_cuadrado_perfecto',
+        topic: 'Trinomio Cuadrado Perfecto (TCP)',
+        match: (latex) => latex.includes('^2') && (latex.includes('+') || latex.includes('-')),
+        getOptions: () => ({
+            correct: 'a^2 \\pm 2ab + b^2 = (a \\pm b)^2',
+            distractors: [
+                'a^2 \\pm 2ab + b^2 = a^2 \\pm b^2',
+                'a^2 \\pm 2ab + b^2 = (a-b)(a+b)',
+                'a^2 \\pm 2ab + b^2 = a^2 + b^2'
+            ]
+        })
+    },
+    {
         id: 'division_polinomios',
         topic: 'División de Polinomios',
         match: (latex) => latex.includes('\\frac{') && latex.includes('x^'),
@@ -75,108 +253,6 @@ const rules = [
                 '\\frac{P(x)}{Q(x)} = P(x) - Q(x)',
                 '\\frac{P(x)}{Q(x)} = P(x) \\cdot Q(x)^{-1}',
                 '\\frac{P(x)}{Q(x)} = \\frac{P\'(x)}{Q\'(x)}'
-            ]
-        })
-    },
-
-    // --- INTEGRALES ---
-    {
-        id: 'integral_fracciones_parciales',
-        topic: 'Integración por Fracciones Parciales',
-        match: (latex) => latex.includes('\\int') && latex.includes('\\frac') && latex.includes(')('),
-        getOptions: () => ({
-            correct: '\\frac{P(x)}{Q(x)} = \\frac{A}{x-a} + \\frac{B}{x-b} + ...',
-            distractors: [
-                '\\int \\frac{u}{v} dx = \\ln|v|',
-                '\\frac{P(x)}{Q(x)} = P(x) \\cdot Q(x)^{-1}',
-                '\\int \\frac{1}{u^2+a^2} du = \\frac{1}{a}\\arctan(\\frac{u}{a})'
-            ]
-        })
-    },
-    {
-        id: 'integral_partes',
-        topic: 'Integración por Partes',
-        match: (latex) => latex.includes('\\int') && 
-               (latex.includes('e^') || latex.includes('\\sin') || latex.includes('\\cos') || latex.includes('\\ln')) &&
-               latex.includes('dx') && !latex.includes('\\frac'),
-        getOptions: () => ({
-            correct: '\\int u \\, dv = u v - \\int v \\, du',
-            distractors: [
-                '\\int u \\, dv = u + v - \\int du \\, dv',
-                '\\int u \\, dv = u v - \\frac{v^2}{2} + C',
-                '\\int u \\, dv = \\int u \\, du \\cdot \\int v \\, dv'
-            ]
-        })
-    },
-    {
-        id: 'integral_potencia',
-        topic: 'Integral de una Potencia (Directa)',
-        match: (latex) => latex.includes('\\int') && latex.includes('^') && latex.includes('dx') && !latex.includes('\\frac'),
-        getOptions: () => ({
-            correct: '\\int u^n du = \\frac{u^{n+1}}{n+1} + C',
-            distractors: [
-                '\\int u^n du = n u^{n-1} + C',
-                '\\int u^n du = \\ln|u| + C',
-                '\\int u^n du = \\frac{u^n}{n} + C'
-            ]
-        })
-    },
-    {
-        id: 'integral_sustitucion',
-        topic: 'Cambio de Variable (Sustitución)',
-        // Match general para integrales (las anteriores se evalúan primero)
-        match: (latex) => latex.includes('\\int') && latex.includes('dx'),
-        getOptions: () => ({
-            correct: 'u = g(x) \\implies du = g\'(x)dx',
-            distractors: [
-                '\\int u \\, dv = uv - \\int v \\, du',
-                '\\frac{A}{x-a} + \\frac{B}{x-b}',
-                '\\int e^u du = e^u'
-            ]
-        })
-    },
-
-    // --- DERIVADAS ---
-    {
-        id: 'derivada_cadena',
-        topic: 'Derivadas - Regla de la Cadena',
-        match: (latex) => latex.includes('\\frac{d}{dx}') || latex.includes('\'('),
-        getOptions: () => ({
-            correct: '\\frac{d}{dx}[f(g(x))] = f\'(g(x))g\'(x)',
-            distractors: [
-                '\\frac{d}{dx}[f(x)g(x)] = f\'(x)g\'(x)',
-                '\\frac{d}{dx}\\left[\\frac{f(x)}{g(x)}\\right] = \\frac{f\'(x)}{g\'(x)}',
-                '\\frac{d}{dx}[f(g(x))] = f\'(x)g\'(x)'
-            ]
-        })
-    },
-
-    // --- TRIGONOMETRÍA E IDENTIDADES ---
-    {
-        id: 'identidad_pitagorica',
-        topic: 'Identidades Trigonométricas (Pitagórica)',
-        match: (latex) => (latex.includes('\\sin^2') || latex.includes('\\cos^2')) && latex.includes('+'),
-        getOptions: () => ({
-            correct: '\\sin^2(x) + \\cos^2(x) = 1',
-            distractors: [
-                '\\sin^2(x) - \\cos^2(x) = 1',
-                '\\sin^2(x) + \\cos^2(x) = 0',
-                '\\sin(x) + \\cos(x) = 1'
-            ]
-        })
-    },
-
-    // --- LOGARITMOS ---
-    {
-        id: 'propiedades_logaritmicas',
-        topic: 'Propiedades Logarítmicas',
-        match: (latex) => latex.includes('\\ln(') || latex.includes('\\log('),
-        getOptions: () => ({
-            correct: '\\ln(a \\cdot b) = \\ln(a) + \\ln(b)',
-            distractors: [
-                '\\ln(a + b) = \\ln(a) \\cdot \\ln(b)',
-                '\\ln(a \\cdot b) = \\ln(a) \\cdot \\ln(b)',
-                '\\ln(a + b) = \\ln(a) + \\ln(b)'
             ]
         })
     }
