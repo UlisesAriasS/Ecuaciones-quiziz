@@ -282,12 +282,13 @@ function analyzeExpression(latex) {
         if (rule.match(normalized)) {
             const optionsData = rule.getOptions(normalized);
             const allOptions = [
-                { text: optionsData.correct, isCorrect: true },
+                { text: optionsData.correct, isCorrect: true, explanation: optionsData.explanation },
                 ...optionsData.distractors.map(d => ({ text: d, isCorrect: false }))
             ];
             return {
                 topic: rule.topic,
-                options: shuffleArray(allOptions)
+                options: shuffleArray(allOptions),
+                explanation: optionsData.explanation
             };
         }
     }
@@ -315,6 +316,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const optionsContainer = document.getElementById('options-container');
     const quizTitle = quizSection.querySelector('h2'); 
     const scoreDisplay = document.getElementById('score-display');
+    const explanationBox = document.getElementById('explanation-box');
+    const explanationText = document.getElementById('explanation-text');
 
     let currentScore = 0;
     let answered = false;
@@ -347,6 +350,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         quizTitle.textContent = `Tema detectado: ${quizData.topic}`;
         answered = false;
+        explanationBox.style.display = 'none';
+        resetBtn.style.backgroundColor = '';
+        resetBtn.style.color = '';
         
         try {
             katex.render(latex, quizExpression, { throwOnError: false, displayMode: true });
@@ -383,16 +389,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     btn.style.borderColor = '#28a745';
                     currentScore += 10;
                     scoreDisplay.textContent = currentScore;
-                    alert('¡Correcto! Esa es la fórmula adecuada. +10 puntos');
                 } else {
                     btn.style.backgroundColor = '#f8d7da';
                     btn.style.borderColor = '#dc3545';
                     currentScore = Math.max(0, currentScore - 5);
                     scoreDisplay.textContent = currentScore;
-                    alert('Incorrecto. Se restaron 5 puntos. La próxima vez lo harás mejor.');
                 }
                 
-                // Mostrar el boton para probar otro problema visualmente mas llamativo si se desea
+                if (explicacion) {
+                    explanationText.textContent = explicacion;
+                    explanationBox.style.display = 'block';
+                }
+
                 resetBtn.style.backgroundColor = '#3498db';
                 resetBtn.style.color = 'white';
             });
